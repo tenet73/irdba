@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IRDBA — Presentation Website</title>
+  <style>
+    :root{
+      --bg:#05070d;
+      --fg:#eaf0ff;
+      --muted:rgba(234,240,255,.78);
+      --accent:#38bdf8;
+      --card:rgba(10,14,26,.58);
+      --stroke:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:28px;
+      --max:1100px;
+      --pad:clamp(18px, 3.2vw, 42px);
+      --h1:clamp(38px, 4.8vw, 76px);
+      --h2:clamp(24px, 3.2vw, 40px);
+      --h3:clamp(16px, 1.5vw, 18px);
+      --p:clamp(15px, 1.3vw, 18px);
+      --lh:1.55;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x:hidden;
+    }
+
+    /* smooth "slide-like" scrolling */
+    html{ scroll-behavior:smooth; }
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto;}
+      .reveal{transition:none!important; transform:none!important; opacity:1!important;}
+    }
+
+    /* page background glow */
+    body::before{
+      content:"";
+      position:fixed; inset:-30%;
+      background:
+        radial-gradient(closest-side at 20% 10%, rgba(56,189,248,.12), transparent 55%),
+        radial-gradient(closest-side at 85% 35%, rgba(99,102,241,.10), transparent 58%),
+        radial-gradient(closest-side at 40% 90%, rgba(56,189,248,.10), transparent 60%);
+      pointer-events:none;
+      z-index:0;
+      filter: blur(0px);
+    }
+
+    /* snap like a presentation */
+    .deck{
+      position:relative;
+      z-index:1;
+      height:100%;
+      scroll-snap-type:y mandatory;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+
+    .slide{
+      min-height:100vh;
+      scroll-snap-align:start;
+      display:flex;
+      align-items:stretch;
+      position:relative;
+      isolation:isolate;
+    }
+
+    .bg{
+      position:absolute; inset:0;
+      background-size:cover;
+      background-position:center;
+      transform:scale(1.02);
+      z-index:-2;
+      filter:saturate(1.05) contrast(1.05);
+    }
+
+    .bg::after{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(180deg, rgba(5,7,13,.72), rgba(5,7,13,.62) 45%, rgba(5,7,13,.80)),
+        radial-gradient(closest-side at 50% 50%, rgba(0,0,0,.15), rgba(0,0,0,.55));
+      z-index:1;
+    }
+
+    .content{
+      width:100%;
+      max-width:var(--max);
+      margin:0 auto;
+      padding: calc(var(--pad) + 26px) var(--pad);
+      display:flex;
+      gap: clamp(18px, 2.4vw, 32px);
+      align-items:center;
+    }
+
+    .panel{
+      width:100%;
+      background: var(--card);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: clamp(18px, 2.8vw, 38px);
+    }
+
+    .kicker{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      font-size: var(--h3);
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color: var(--muted);
+      margin: 0 0 14px 0;
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:99px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(56,189,248,.12);
+    }
+
+    h1{
+      font-size: var(--h1);
+      margin:0 0 10px 0;
+      line-height:1.05;
+      letter-spacing:-0.02em;
+    }
+
+    h2{
+      font-size: var(--h2);
+      margin:0 0 14px 0;
+      line-height:1.12;
+    }
+
+    p, li{
+      font-size: var(--p);
+      line-height: var(--lh);
+      color: var(--fg);
+      margin: 0 0 14px 0;
+    }
+
+    .muted{color:var(--muted)}
+    .brand{
+      font-weight:800;
+      letter-spacing:.10em;
+    }
+
+    .accent{color:var(--accent);}
+
+    .two{
+      display:grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: clamp(16px, 2.2vw, 30px);
+      align-items:start;
+    }
+    @media (max-width: 920px){
+      .two{grid-template-columns:1fr;}
+      .content{align-items:flex-start;}
+    }
+
+    .card{
+      border:1px solid var(--stroke);
+      border-radius: 22px;
+      background: rgba(8,12,22,.55);
+      padding: 18px 18px;
+    }
+
+    ul,ol{padding-left: 22px; margin:0}
+    li{margin:0 0 10px 0; color:var(--fg)}
+    .hr{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      margin: 18px 0;
+    }
+
+    /* small top nav dots (optional) */
+    .nav{
+      position:fixed;
+      top: 16px;
+      right: 16px;
+      z-index:50;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding: 10px 10px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+    }
+    .nav a{
+      width:10px;height:10px;border-radius:99px;
+      background: rgba(255,255,255,.28);
+      display:block;
+      outline: none;
+    }
+    .nav a:hover{background: rgba(255,255,255,.55);}
+    .nav a:focus-visible{box-shadow:0 0 0 4px rgba(56,189,248,.25); background: var(--accent);}
+
+    /* reveal animation */
+    .reveal{
+      opacity:0;
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.in{
+      opacity:1;
+      transform:none;
+    }
+
+    .contacts{
+      list-style:none;
+      padding:0;
+      margin:0;
+    }
+    .contacts li{
+      margin: 0 0 10px 0;
+      color: var(--fg);
+    }
+    .pill{
+      display:inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(56,189,248,.28);
+      background: rgba(56,189,248,.08);
+      color: var(--fg);
+      font-size: 14px;
+      letter-spacing:.02em;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Slides">
+    <a href="#s1" title="IRDBA"></a>
+    <a href="#s2" title="What is IRDBA?"></a>
+    <a href="#s3" title="Goals & Mission"></a>
+    <a href="#s4" title="Relevance & Innovation"></a>
+    <a href="#s5" title="Practical significance"></a>
+    <a href="#s6" title="Business model"></a>
+    <a href="#s7" title="Expected results"></a>
+    <a href="#s8" title="Month roadmap"></a>
+    <a href="#s9" title="Thank you"></a>
+  </nav>
+
+  <main class="deck" id="deck">
+    <!-- Slide 1 -->
+    <section class="slide" id="s1">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <div class="kicker"><span class="dot"></span><span class="brand">IRDBA</span></div>
+          <h1>INTERNATIONAL ROCKETRY &amp; DRONE BUILDING ASSOCIATION</h1>
+          <p class="pill">FROM THE SKY TO THE STARS</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide" id="s2">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>WHAT IS IRDBA?</h1>
+          <p>
+            The International Rocketry and Drone Building Association is a youth-led initiative that brings together students, engineers, and researchers to develop drones and rockets.
+            Founded in Kazakhstan, IRDBA aims to combine the country’s aerospace heritage with modern innovation, turning our nation into a hub for practical aerospace education and development.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide" id="s3">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>GOALS &amp; MISSION</h1>
+          <p>
+            Our mission is to create opportunities for young people in Kazakhstan to engage with aerospace engineering.
+            We aim to train future experts by providing hands-on experience in building rockets and drones, organizing competitions, and collaborating with global aerospace communities.
+          </p>
+          <p>
+            Ultimately, IRDBA strives to develop Kazakhstan’s domestic drone-making sector, transforming the country from an importer of technology into a producer and innovator.
+            In the long term, we plan to build an international network of young engineers and researchers, expanding IRDBA beyond Kazakhstan and positioning it as a global hub for aerospace collaboration.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4 -->
+    <section class="slide" id="s4">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>RELEVANCE &amp; INNOVATION</h1>
+          <div class="kicker"><span class="dot"></span><span class="brand">IRDBA</span></div>
+          <p>
+            Kazakhstan is home to Baikonur Cosmodrome, the world’s first and largest spaceport. However, many young people lack access to aerospace education at a practical level.
+            IRDBA fills this gap by introducing innovative, project-based learning that allows students to design, test, and apply aerospace technologies within their own environment.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5 -->
+    <section class="slide" id="s5">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <div class="two">
+            <div>
+              <h1>PRACTICAL SIGNIFICANCE</h1>
+              <p class="pill">DRONES ARE THE FUTURE</p>
+              <div class="kicker"><span class="dot"></span><span class="brand">IRDBA</span></div>
+              <p>
+                Drone and rocketry technologies are vital for Kazakhstan’s future. Drones can be used in agriculture (crop monitoring), ecology (forest fire detection, environmental studies),
+                and infrastructure (surveying remote areas). Rockets and aerospace education inspire new generations of engineers, directly supporting Kazakhstan’s technological and economic growth.
+              </p>
+            </div>
+            <div class="card">
+              <h2>RESOURCES NEEDED</h2>
+              <p class="muted">
+                To turn IRDBA into a working hub of aerospace innovation, we need both space and tools. A coworking and prototyping lab will serve as the foundation, equipped with 3D printers
+                (Creality Ender 3 V3, Prusa MK3S+) for custom drone and rocket parts, CNC tools, and soldering stations.
+              </p>
+              <p class="muted">
+                For electronics and control systems, we require Arduino boards, Raspberry Pi units, Pixhawk flight controllers, and sensors such as GPS modules, barometers, and IMUs.
+                Camera modules (Raspberry Pi Camera v3, FLIR Lepton thermal sensors) will support drone payload development.
+              </p>
+              <p class="muted">
+                Model rocketry will use commercially certified motors (Estes, Aerotech), flight computers (Altus Metrum EasyMini), and GPS trackers (u-blox NEO-6M). Drones will be powered by
+                brushless motors (T-Motor, EMAX), LiPo batteries (Tattu), and controlled with telemetry radios (FrSky, Radiomaster).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6 -->
+    <section class="slide" id="s6">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>BUSINESS MODEL</h1>
+          <h2 class="accent">THE GRAND VISION</h2>
+          <p>
+            IRDBA will operate as an educational and research network. Our activities include training programs, youth competitions, and collaborations with companies that need drone-based
+            services in agriculture, logistics, and safety. Over time, we plan to develop a membership system and international partnerships to sustain operations.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 7 -->
+    <section class="slide" id="s7">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1516197151355-93799118636e?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>EXPECTED RESULTS</h1>
+          <p>Within the first year, IRDBA expects to:</p>
+          <ol>
+            <li>Build and test functioning drones and small rockets in Kazakhstan.</li>
+            <li>Train dozens of students in practical aerospace engineering.</li>
+            <li>Organize public events to showcase projects and attract new talent.</li>
+            <li>Create international recognition for Kazakhstan’s youth-driven aerospace initiatives.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 8 -->
+    <section class="slide" id="s8">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>MONTH ROADMAP</h1>
+          <div class="hr"></div>
+          <h2>MONTH 1</h2>
+          <p>Form the core team, set up social media accounts, and prepare the workspace with basic tools and equipment.</p>
+          <h2>MONTH 2</h2>
+          <p>Begin building first prototypes of drones and rockets, run small internal tests, and organize mentorship sessions with experts.</p>
+          <h2>MONTH 3</h2>
+          <p>Conduct flight and launch demonstrations, host a public workshop for students, and publish results to attract more members and partners.</p>
+          <div class="kicker" style="margin-top:10px;"><span class="dot"></span><span class="brand">IRDBA</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 9 -->
+    <section class="slide" id="s9">
+      <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1800&q=80');"></div>
+      <div class="content">
+        <div class="panel reveal">
+          <h1>THANK YOU</h1>
+          <div class="kicker"><span class="dot"></span><span class="brand">IRDBA</span></div>
+          <ul class="contacts">
+            <li>📞 +77711762176</li>
+            <li>🌐 www.irdba.com</li>
+            <li>✉️ irdba@aerospace.com</li>
+            <li>📍 Astana, Kazakhstan</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Reveal animations when slides enter viewport
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) e.target.classList.add('in');
+      }
+    }, { threshold: 0.22 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Optional: allow keyboard navigation like slides
+    const deck = document.getElementById('deck');
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    function currentIndex(){
+      const y = deck.scrollTop;
+      let idx = 0, best = Infinity;
+      slides.forEach((s,i)=>{
+        const dy = Math.abs(s.offsetTop - y);
+        if (dy < best){ best = dy; idx = i; }
+      });
+      return idx;
+    }
+    window.addEventListener('keydown', (e)=>{
+      if (['ArrowDown','PageDown',' '].includes(e.key)){
+        e.preventDefault();
+        const i = currentIndex();
+        const n = Math.min(slides.length-1, i+1);
+        slides[n].scrollIntoView({behavior:'smooth'});
+      }
+      if (['ArrowUp','PageUp'].includes(e.key)){
+        e.preventDefault();
+        const i = currentIndex();
+        const n = Math.max(0, i-1);
+        slides[n].scrollIntoView({behavior:'smooth'});
+      }
+      if (e.key === 'Home'){ e.preventDefault(); slides[0].scrollIntoView({behavior:'smooth'}); }
+      if (e.key === 'End'){ e.preventDefault(); slides[slides.length-1].scrollIntoView({behavior:'smooth'}); }
+    }, {passive:false});
+  </script>
+</body>
+</html>
